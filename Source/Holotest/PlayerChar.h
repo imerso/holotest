@@ -28,7 +28,12 @@ protected:
 	virtual void BeginPlay() override;
 
 	// Fire weapon from specific position (left or right)
-	void FireAtPos(FVector& Pos, FRotator& Rot);
+	void FireAtPos(const FVector& Pos, const FRotator& Rot);
+
+	// Server Fire RPC
+	UFUNCTION(Server, Reliable)
+	void ServerFire(const FVector& Pos, const FRotator& Rot);
+	void ServerFire_Implementation(const FVector& Pos, const FRotator& Rot);
 
 public:	
 	// Called every frame

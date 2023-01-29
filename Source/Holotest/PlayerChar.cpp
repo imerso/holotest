@@ -108,25 +108,31 @@ void APlayerChar::Fire()
 		FVector LocationLeft = CameraLocation + FTransform(CameraRotation).TransformVector(WeaponOffsetLeft);
 		FVector LocationRight = CameraLocation + FTransform(CameraRotation).TransformVector(WeaponOffsetRight);
 
-		// Skew the aim to be slightly upwards
-		FRotator Rotation = CameraRotation;
-
-		FireAtPos(LocationLeft, Rotation);
-		FireAtPos(LocationRight, Rotation);
-
+		if (!HasAuthority())
+		{
+			// Fire at Server
+			ServerFire(LocationLeft, CameraRotation);
+			ServerFire(LocationRight, CameraRotation);
+		}
+		else
+		{
+			// Fire at Client
+			FireAtPos(LocationLeft, CameraRotation);
+			FireAtPos(LocationRight, CameraRotation);
+		}
 	}
 }
 
 // Fire weapon from specific position (left or right)
-void APlayerChar::FireAtPos(FVector& Pos, FRotator& Rot)
+void APlayerChar::FireAtPos(const FVector& Pos, const FRotator& Rot)
 {
 	UWorld* World = GetWorld();
 
 	if (World)
 	{
 		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		SpawnParams.Instigator = GetInstigator();
+		//SpawnParams.Owner = this;
+		//SpawnParams.Instigator = GetInstigator();
 
 		// Spawn new weapon projectile
 		AWeapon* Projectile = World->SpawnActor<AWeapon>(WeaponClass, Pos, Rot, SpawnParams);
@@ -134,8 +140,15 @@ void APlayerChar::FireAtPos(FVector& Pos, FRotator& Rot)
 		{
 			// Fire weapon
 			Projectile->SetReplicates(true);
+			Projectile->SetReplicateMovement(true);
 			FVector LaunchDirection = Rot.Vector();
 			Projectile->Fire(LaunchDirection);
 		}
 	}
+}
+
+// Server Fire RPC implementation
+void APlayerChar::ServerFire_Implementation(const FVector& Pos, const FRotator& Rot)
+{
+	FireAtPos(Pos, Rot);
 }
