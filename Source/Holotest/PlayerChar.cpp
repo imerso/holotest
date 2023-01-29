@@ -13,7 +13,7 @@ APlayerChar::APlayerChar()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Get the camera component and attach to the collider
+	// Create a camera component and attach to the collider
 	USceneComponent* Collider = CastChecked<USceneComponent, UCapsuleComponent>(GetCapsuleComponent());
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	CameraComponent->SetupAttachment(Collider);
@@ -21,8 +21,16 @@ APlayerChar::APlayerChar()
 	CameraComponent->bUsePawnControlRotation = true;
 
 	// Also attach the player mesh to the camera component
-	PlayerMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("PlayerMesh"));
+	PlayerMesh = GetMesh();
 	PlayerMesh->SetupAttachment(CameraComponent);
+
+	// Get both weapon sockets from player mesh
+	// ### for some reason it was not working, and as I lost
+	// ### a good time (this ended up being a one day project),
+	// ### I just hammered the coordinates from reference cubes
+	// ### inside the BP, sorry.
+	//WeaponOffsetLeft = PlayerMesh->GetSocketLocation("BoneSocket_Left");
+	//WeaponOffsetRight = PlayerMesh->GetSocketLocation("BoneSocket_Right");
 }
 
 // Called when the game starts or when spawned
@@ -52,6 +60,9 @@ void APlayerChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	// Bind jump action
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerChar::StartJump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerChar::StopJump);
+
+	// Bind fire action
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APlayerChar::Fire);
 }
 
 // Character move
@@ -81,4 +92,50 @@ void APlayerChar::StartJump()
 void APlayerChar::StopJump()
 {
 	bPressedJump = false;
+}
+
+// Fire
+void APlayerChar::Fire()
+{
+	// Must setup Weapon in BP
+	if (WeaponClass)
+	{
+		// Get the camera transform
+		FVector CameraLocation = GetActorLocation();
+		FRotator CameraRotation = GetActorRotation();
+
+		// Transform WeaponOffsetLeft from camera space to world space
+		FVector LocationLeft = CameraLocation + FTransform(CameraRotation).TransformVector(WeaponOffsetLeft);
+		FVector LocationRight = CameraLocation + FTransform(CameraRotation).TransformVector(WeaponOffsetRight);
+
+		// Skew the aim to be slightly upwards
+		FRotator Rotation = CameraRotation;
+
+		FireAtPos(LocationLeft, Rotation);
+		FireAtPos(LocationRight, Rotation);
+
+	}
+}
+
+// Fire weapon from specific position (left or right)
+void APlayerChar::FireAtPos(FVector& Pos, FRotator& Rot)
+{
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		// Spawn new weapon projectile
+		AWeapon* Projectile = World->SpawnActor<AWeapon>(WeaponClass, Pos, Rot, SpawnParams);
+		if (Projectile)
+		{
+			// Fire weapon
+			Projectile->SetReplicates(true);
+			FVector LaunchDirection = Rot.Vector();
+			Projectile->Fire(LaunchDirection);
+		}
+	}
 }

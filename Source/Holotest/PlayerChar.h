@@ -11,6 +11,7 @@
 #include "GameFramework/Character.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Weapon.h"
 #include "PlayerChar.generated.h"
 
 UCLASS()
@@ -26,28 +27,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Fire weapon from specific position (left or right)
+	void FireAtPos(FVector& Pos, FRotator& Rot);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	// Player Camera
-	UPROPERTY(VisibleAnywhere)
-	UCameraComponent* CameraComponent;
-
-	// Player Mesh
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	USkeletalMeshComponent* PlayerMesh;
-
-	// Weapon mesh
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	UStaticMesh* WeaponMesh;
-
-	// Weapon speed
-	UPROPERTY(EditAnywhere, Category = "Weapon")
-	float WeaponSpeed;
 
 	// Forward/Backward movements input
 	UFUNCTION()
@@ -64,4 +52,26 @@ public:
 	// Jump end
 	UFUNCTION()
 	void StopJump();
+
+	// Function that handles firing projectiles.
+	UFUNCTION()
+	void Fire();
+
+	// Player Camera
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* CameraComponent;
+
+	// Player Mesh
+	UPROPERTY(VisibleDefaultsOnly, Category = "Mesh")
+	USkeletalMeshComponent* PlayerMesh;
+
+	// Weapon class
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<class AWeapon> WeaponClass;
+
+	// Weapon offsets
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FVector WeaponOffsetLeft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	FVector WeaponOffsetRight;
 };

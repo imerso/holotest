@@ -9,3 +9,8 @@ How it was done:
 - Imported both into the project;
 - Started creating the little game with mostly C++.
 
+PROBLEMS:
+
+- Sockets from the player mesh were not reading correctly,
+  so I just used a param to adjust inside BP (yes, ugly...)
+
