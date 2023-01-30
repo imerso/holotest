@@ -77,8 +77,6 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 		OtherComponent->AddImpulseAtLocation(MoveComponent->Velocity * 100.0f, Hit.ImpactPoint);
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("HIT ACTOR: %s"), *OtherActor->GetName());
-
 	// Spawn explosion at location
 	if (!HasAuthority())
 	{

@@ -1,4 +1,4 @@
-How it was done:
+HOW IT WAS DONE:
 
 - Created Unreal 4.27 C++ blank project;
 - Went to hologate.com and saved a color logo;
@@ -12,5 +12,8 @@ How it was done:
 PROBLEMS:
 
 - Sockets from the player mesh were not reading correctly,
-  so I just used a param to adjust inside BP (yes, ugly...)
+  so I just used a param to adjust inside BP (yes, ugly...);
+
+- For some reason the exported logo is becoming black
+  after a lighting rebuild;
 
