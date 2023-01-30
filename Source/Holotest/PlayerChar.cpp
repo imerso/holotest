@@ -131,8 +131,8 @@ void APlayerChar::FireAtPos(const FVector& Pos, const FRotator& Rot)
 	if (World)
 	{
 		FActorSpawnParameters SpawnParams;
-		//SpawnParams.Owner = this;
-		//SpawnParams.Instigator = GetInstigator();
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
 
 		// Spawn new weapon projectile
 		AWeapon* Projectile = World->SpawnActor<AWeapon>(WeaponClass, Pos, Rot, SpawnParams);

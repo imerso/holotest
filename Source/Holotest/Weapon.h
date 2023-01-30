@@ -41,4 +41,8 @@ public:
 	// Movement
 	UPROPERTY(VisibleAnywhere, Category = "Movement")
 	UProjectileMovementComponent* MoveComponent;
+
+	// Collision detection
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit);
 };

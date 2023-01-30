@@ -19,6 +19,8 @@ AWeapon::AWeapon()
 		// Simple collision detection using sphere
 		CollisionComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 		CollisionComponent->InitSphereRadius(10);
+		CollisionComponent->OnComponentHit.AddDynamic(this, &AWeapon::OnHit);
+		CollisionComponent->BodyInstance.SetCollisionProfileName(TEXT("Projectile"));
 		RootComponent = CollisionComponent;
 
 		// Use this component to drive this Weapon's movement.
@@ -38,7 +40,7 @@ AWeapon::AWeapon()
 		WeaponMeshComponent->SetupAttachment(CollisionComponent);
 	}
 
-	InitialLifeSpan = 1.0f;
+	InitialLifeSpan = 2.0f;
 }
 
 // Called when the game starts or when spawned
@@ -55,7 +57,24 @@ void AWeapon::Tick(float DeltaTime)
 
 }
 
+// Fire
 void AWeapon::Fire(const FVector& Direction)
 {
 	MoveComponent->Velocity = Direction * MoveComponent->InitialSpeed;
+}
+
+// Collision detection
+void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
+{
+	// Ignore self-collisions
+	if (OtherActor->GetInstigator() == this->GetInstigator()) return;
+
+	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+	{
+		OtherComponent->AddImpulseAtLocation(MoveComponent->Velocity * 100.0f, Hit.ImpactPoint);
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("HIT ACTOR: %s"), *OtherActor->GetName());
+
+	Destroy();
 }
