@@ -58,7 +58,7 @@ public:
 	UFUNCTION()
 	void StopJump();
 
-	// Function that handles firing projectiles.
+	// Fire
 	UFUNCTION()
 	void Fire();
 

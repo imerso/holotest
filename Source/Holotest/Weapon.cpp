@@ -88,10 +88,10 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 			AHolotestGameModeBase* GMode = GetWorld()->GetAuthGameMode<AHolotestGameModeBase>();
 			if (GMode)
 			{
-				// Damage player
+				// Add to hits count
 				GMode->PlayerHit();
 
-				// 
+				// Damage player
 				APlayerChar* PDamaged = Cast<APlayerChar>(OtherActor);
 				AHolotestPlayerState* PState = PDamaged->GetPlayerState<AHolotestPlayerState>();
 				PState->PlayerDamage();

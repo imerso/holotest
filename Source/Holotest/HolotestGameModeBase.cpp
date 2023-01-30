@@ -10,7 +10,7 @@ AHolotestGameModeBase::AHolotestGameModeBase()
 
 }
 
-// Inflict player damage
+// Updates hits count
 void AHolotestGameModeBase::PlayerHit()
 {
 	AHolotestGameStateBase* GState = GetGameState<AHolotestGameStateBase>();

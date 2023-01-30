@@ -18,6 +18,6 @@ public:
 
 	AHolotestGameModeBase();
 
-	// Inflict player damage
+	// Updates hits count
 	void PlayerHit();
 };

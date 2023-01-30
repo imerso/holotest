@@ -3,6 +3,7 @@
 
 #include "HolotestPlayerState.h"
 #include <Runtime/Engine/Public/Net/UnrealNetwork.h>
+#include <Holotest/PlayerChar.h>
 
 
 // Constructor
@@ -13,18 +14,29 @@ AHolotestPlayerState::AHolotestPlayerState()
 }
 
 // Damage and decrease player energy
-void AHolotestPlayerState::PlayerDamage()
+uint16 AHolotestPlayerState::PlayerDamage()
 {
 	if (HasAuthority())
 	{
-		Energy--;
-		UE_LOG(LogTemp, Warning, TEXT("REMAINING ENERGY: %u"), Energy);
-
-		if (Energy <= 0)
+		// Decreases until no energy is available
+		if (Energy)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("DEAD!"));
+			Energy--;
+			UE_LOG(LogTemp, Warning, TEXT("REMAINING ENERGY: %u"), Energy);
+		}
+
+		// Test again because it
+		// could be a different shot while
+		// the player is still showing on scene
+		if (!Energy)
+		{
+			// Player is dead...
+			UE_LOG(LogTemp, Warning, TEXT("DEAD PLAYER..."));
+			GetPawn()->Destroy();
 		}
 	}
+
+	return Energy;
 }
 
 // Client Energy replication update

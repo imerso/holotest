@@ -6,6 +6,7 @@
 
 
 #include "PlayerChar.h"
+#include <Holotest/HolotestGameModeBase.h>
 
 // Sets default values
 APlayerChar::APlayerChar()
