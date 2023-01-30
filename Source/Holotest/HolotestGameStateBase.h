@@ -14,6 +14,8 @@ class HOLOTEST_API AHolotestGameStateBase : public AGameStateBase
 {
 	GENERATED_BODY()
 
+protected:
+
 	// Replicated HitsCount
 	UPROPERTY(ReplicatedUsing = OnRep_HitsCount)
 	uint16 HitsCount;

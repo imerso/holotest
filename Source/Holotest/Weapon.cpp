@@ -4,8 +4,9 @@
 
 
 #include "Weapon.h"
-#include <Holotest/HolotestGameModeBase.h>
 #include <Holotest/PlayerChar.h>
+#include <Holotest/HolotestGameModeBase.h>
+#include <Holotest/HolotestPlayerState.h>
 
 // Sets default values
 AWeapon::AWeapon()
@@ -89,6 +90,11 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 			{
 				// Damage player
 				GMode->PlayerHit();
+
+				// 
+				APlayerChar* PDamaged = Cast<APlayerChar>(OtherActor);
+				AHolotestPlayerState* PState = PDamaged->GetPlayerState<AHolotestPlayerState>();
+				PState->PlayerDamage();
 			}
 		}
 	}
