@@ -76,5 +76,48 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 
 	UE_LOG(LogTemp, Warning, TEXT("HIT ACTOR: %s"), *OtherActor->GetName());
 
+	// Spawn explosion at location
+	if (!HasAuthority())
+	{
+		// Explosion at Server
+		ServerExplosion(Hit.ImpactPoint);
+	}
+	else
+	{
+		// Explosion at Client
+		ExplosionAtPos(Hit.ImpactPoint);
+	}
+
 	Destroy();
+}
+
+// Explosion at pos
+void AWeapon::ExplosionAtPos(const FVector& Pos)
+{
+	UWorld* World = GetWorld();
+
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = GetInstigator();
+
+		// Spawn new explosion
+		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("Blueprint'/Game/Blueprints/BP_Explosion01.BP_Explosion01'")));
+		UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnActor);
+		UClass* SpawnClass = SpawnActor->StaticClass();
+		AActor* Explosion = World->SpawnActor<AActor>(GeneratedBP->GeneratedClass, Pos, FRotator(0, 0, 0), SpawnParams);
+		if (Explosion)
+		{
+			// Explode
+			Explosion->SetReplicates(true);
+			Explosion->SetReplicateMovement(true);
+		}
+	}
+}
+
+// Server Fire RPC implementation
+void AWeapon::ServerExplosion_Implementation(const FVector& Pos)
+{
+	ExplosionAtPos(Pos);
 }

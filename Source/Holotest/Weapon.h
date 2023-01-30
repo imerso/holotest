@@ -23,6 +23,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Spawn explosion
+	void ExplosionAtPos(const FVector& Pos);
+
+	// Server Fire RPC
+	UFUNCTION(Server, Reliable)
+	void ServerExplosion(const FVector& Pos);
+	void ServerExplosion_Implementation(const FVector& Pos);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -33,6 +41,11 @@ public:
 	// Weapon mesh
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 	UStaticMeshComponent* WeaponMeshComponent;
+
+	// Explosion effect
+	// Weapon class
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<class AActor> ExplosionClass;
 
 	// Collision component
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
