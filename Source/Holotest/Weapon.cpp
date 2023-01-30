@@ -38,6 +38,9 @@ AWeapon::AWeapon()
 		static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("StaticMesh'/Game/Meshes/projectile.projectile'"));
 		WeaponMeshComponent->SetStaticMesh(Mesh.Object);
 		WeaponMeshComponent->SetupAttachment(CollisionComponent);
+
+		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("Blueprint'/Game/Blueprints/BP_Explosion01.BP_Explosion01'")));
+		ExplosionBP = Cast<UBlueprint>(SpawnActor);
 	}
 
 	InitialLifeSpan = 2.0f;
@@ -103,10 +106,7 @@ void AWeapon::ExplosionAtPos(const FVector& Pos)
 		SpawnParams.Instigator = GetInstigator();
 
 		// Spawn new explosion
-		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("Blueprint'/Game/Blueprints/BP_Explosion01.BP_Explosion01'")));
-		UBlueprint* GeneratedBP = Cast<UBlueprint>(SpawnActor);
-		UClass* SpawnClass = SpawnActor->StaticClass();
-		AActor* Explosion = World->SpawnActor<AActor>(GeneratedBP->GeneratedClass, Pos, FRotator(0, 0, 0), SpawnParams);
+		AActor* Explosion = World->SpawnActor<AActor>(ExplosionBP->GeneratedClass, Pos, FRotator(0, 0, 0), SpawnParams);
 		if (Explosion)
 		{
 			// Explode

@@ -31,6 +31,8 @@ protected:
 	void ServerExplosion(const FVector& Pos);
 	void ServerExplosion_Implementation(const FVector& Pos);
 
+	UBlueprint* ExplosionBP;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
