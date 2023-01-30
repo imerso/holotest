@@ -13,5 +13,11 @@ UCLASS()
 class HOLOTEST_API AHolotestGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+public:
+
+	AHolotestGameModeBase();
+
+	// Inflict player damage
+	void PlayerHit();
 };

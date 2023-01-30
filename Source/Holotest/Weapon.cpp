@@ -4,6 +4,8 @@
 
 
 #include "Weapon.h"
+#include <Holotest/HolotestGameModeBase.h>
+#include <Holotest/PlayerChar.h>
 
 // Sets default values
 AWeapon::AWeapon()
@@ -76,17 +78,30 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 	{
 		OtherComponent->AddImpulseAtLocation(MoveComponent->Velocity * 100.0f, Hit.ImpactPoint);
 	}
-
-	// Spawn explosion at location
-	if (!HasAuthority())
+	else if (HasAuthority())
 	{
-		// Explosion at Server
-		ServerExplosion(Hit.ImpactPoint);
+		// If the hit object is a player, damage it
+		APlayerChar* PlayerChar = Cast<APlayerChar>(OtherActor);
+		if (PlayerChar)
+		{
+			AHolotestGameModeBase* GMode = GetWorld()->GetAuthGameMode<AHolotestGameModeBase>();
+			if (GMode)
+			{
+				// Damage player
+				GMode->PlayerHit();
+			}
+		}
+	}
+
+	if (HasAuthority())
+	{
+		// Local Explosion
+		ExplosionAtPos(Hit.ImpactPoint);
 	}
 	else
 	{
-		// Explosion at Client
-		ExplosionAtPos(Hit.ImpactPoint);
+		// Explosion at Server
+		ServerExplosion(Hit.ImpactPoint);
 	}
 
 	Destroy();

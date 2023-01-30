@@ -9,7 +9,8 @@ HOW IT WAS DONE:
 - Imported both into the project;
 - Started creating the little game with mostly C++.
 
-PROBLEMS:
+
+PROBLEMS TO FIX:
 
 - Sockets from the player mesh were not reading correctly,
   so I just used a param to adjust inside BP (yes, ugly...);
@@ -17,3 +18,18 @@ PROBLEMS:
 - For some reason the exported logo is becoming black
   after a lighting rebuild;
 
+
+HOW I FEEL ABOUT UNREAL:
+
+I wrote a few engines in the past and have an idea about how engines
+like Unreal are implemented.
+
+I am not a Unreal specialist (yet), though. I just find it natural
+to learn about 3D engines while I go. Threejs, Babylonjs, Unity, Unreal,
+they look straightforward to learn.
+
+I definitely checked the docs multiple times while building this tiny game.
+
+Unreal is a great engine overall. If I get a job opportunity, I'll dive into it
+and study its source-code to get more details about how everything was
+implemented, to master it.
