@@ -15,9 +15,6 @@ PROBLEMS TO FIX:
 - Sockets from the player mesh were not reading correctly,
   so I just used a param to adjust inside BP (yes, ugly...);
 
-- For some reason the exported logo is becoming black
-  after a lighting rebuild;
-
 
 HOW I FEEL ABOUT UNREAL:
 
