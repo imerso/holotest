@@ -20,9 +20,17 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_Energy)
 	uint16 Energy;
 
-	// Client Energy replication update
+	// Client energy replication update
 	UFUNCTION()
 	void OnRep_Energy();
+
+	// Player score
+	UPROPERTY(ReplicatedUsing = OnRep_PScore)
+	uint32 PScore;
+
+	// Client score replication update
+	UFUNCTION()
+	void OnRep_PScore();
 
 public:
 
@@ -30,5 +38,12 @@ public:
 	AHolotestPlayerState();
 
 	// Damage and decrease player energy
-	uint16 PlayerDamage();
+	void PlayerDamage(uint16 Amount);
+
+	// Add score
+	void PlayerAddScore(uint32 Amount);
+
+	uint16 GetEnergy() { return Energy; }
+	uint32 GetScore() { return PScore; }
+	void Reset() { Energy = 100; }
 };

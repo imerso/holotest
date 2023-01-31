@@ -9,40 +9,41 @@
 // Constructor
 AHolotestPlayerState::AHolotestPlayerState()
 {
-	// Clear hits count
-	Energy = 10;
+	// Clear stats
+	Energy = 100;
+	PScore = 0;
 }
 
 // Damage and decrease player energy
-uint16 AHolotestPlayerState::PlayerDamage()
+void AHolotestPlayerState::PlayerDamage(uint16 Amount)
 {
 	if (HasAuthority())
 	{
 		// Decreases until no energy is available
 		if (Energy)
 		{
-			Energy--;
-			UE_LOG(LogTemp, Warning, TEXT("REMAINING ENERGY: %u"), Energy);
-		}
-
-		// Test again because it
-		// could be a different shot while
-		// the player is still showing on scene
-		if (!Energy)
-		{
-			// Player is dead...
-			UE_LOG(LogTemp, Warning, TEXT("DEAD PLAYER..."));
-			GetPawn()->Destroy();
+			Energy = FMath::Max(0, Energy - Amount);
 		}
 	}
+}
 
-	return Energy;
+// Add score
+void AHolotestPlayerState::PlayerAddScore(uint32 Amount)
+{
+	if (HasAuthority())
+	{
+		PScore += Amount;
+	}
 }
 
 // Client Energy replication update
 void AHolotestPlayerState::OnRep_Energy()
 {
-	UE_LOG(LogTemp, Warning, TEXT("CLIENT ENERGY: %u"), Energy);
+}
+
+// Cliente Score replication update
+void AHolotestPlayerState::OnRep_PScore()
+{
 }
 
 // New Client actual player state variables replication
@@ -50,5 +51,5 @@ void AHolotestPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>&
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AHolotestPlayerState, Energy);
-	UE_LOG(LogTemp, Warning, TEXT("NEW CLIENT REPLICATE ENERGY: %u"), Energy);
+	DOREPLIFETIME(AHolotestPlayerState, PScore);
 }

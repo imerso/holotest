@@ -29,7 +29,7 @@ public:
 	// Constructs
 	AHolotestGameStateBase();
 
-	// Inflict player damage
+	// Increases total hits count
 	void PlayerHit();
 
 };

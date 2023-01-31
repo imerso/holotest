@@ -35,6 +35,22 @@ protected:
 	void ServerFire(const FVector& Pos, const FRotator& Rot);
 	void ServerFire_Implementation(const FVector& Pos, const FRotator& Rot);
 
+	// Server "kill" player RPC
+	UFUNCTION(Server, Reliable)
+	void ServerKill();
+	void ServerKill_Implementation();
+
+	// Server respawn player at location RPC
+	UFUNCTION(Server, Reliable)
+	void ServerRespawn(const FVector& Pos);
+	void ServerRespawn_Implementation(const FVector& Pos);
+
+	// Timed HUD updates
+	float Delay;
+
+	// Alive flag
+	bool IsAlive;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -62,6 +78,10 @@ public:
 	UFUNCTION()
 	void Fire();
 
+	// Respawn
+	UFUNCTION()
+	void Respawn();
+
 	// Player Camera
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComponent;
@@ -79,4 +99,12 @@ public:
 	FVector WeaponOffsetLeft;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
 	FVector WeaponOffsetRight;
+
+	// HUD updating
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void OnUpdateHUD(int Energy, int Score);
+
+	// Show/hide respawn message
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void OnShowRespawnMsg(bool Show);
 };

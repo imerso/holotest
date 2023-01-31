@@ -82,8 +82,8 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 	else if (HasAuthority())
 	{
 		// If the hit object is a player, damage it
-		APlayerChar* PlayerChar = Cast<APlayerChar>(OtherActor);
-		if (PlayerChar)
+		APlayerChar* PDamaged = Cast<APlayerChar>(OtherActor);
+		if (PDamaged)
 		{
 			AHolotestGameModeBase* GMode = GetWorld()->GetAuthGameMode<AHolotestGameModeBase>();
 			if (GMode)
@@ -92,9 +92,23 @@ void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrim
 				GMode->PlayerHit();
 
 				// Damage player
-				APlayerChar* PDamaged = Cast<APlayerChar>(OtherActor);
-				AHolotestPlayerState* PState = PDamaged->GetPlayerState<AHolotestPlayerState>();
-				PState->PlayerDamage();
+				AHolotestPlayerState* PDamagedState = PDamaged->GetPlayerState<AHolotestPlayerState>();
+
+				// Firing player scores
+				APlayerChar* POwner = Cast<APlayerChar>(GetOwner());
+				AHolotestPlayerState* POwnerState = POwner->GetPlayerState<AHolotestPlayerState>();
+
+				// Calculate the amount of damage and score by distance
+				// more distance is more score because it's harder,
+				// but less damage
+				float Dist = FVector::Distance(PDamaged->GetActorLocation(), POwner->GetActorLocation());
+				uint16 DamageAmount = (uint16)(FMath::Clamp<float>(10 - Dist / 100, 0, 10));
+				uint32 ScoreAmount = (uint32)(Dist / 10);
+
+				PDamagedState->PlayerDamage(DamageAmount);
+				POwnerState->PlayerAddScore(ScoreAmount);
+				
+				UE_LOG(LogTemp, Warning, TEXT("%s ==> %s, Dam %u, Sco %u (Dist: %f)"), *POwner->GetName() , *PDamaged->GetName(), DamageAmount, ScoreAmount, Dist);
 			}
 		}
 	}

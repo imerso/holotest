@@ -10,10 +10,10 @@ HOW IT WAS DONE:
 - Started creating the little game with mostly C++.
 
 
-PROBLEMS TO FIX:
+HOW TO PLAY:
 
-- Sockets from the player mesh were not reading correctly,
-  so I just used a param to adjust inside BP (yes, ugly...);
+At this point the game was tested only inside the Unreal Editor. Run it as listening server, then check that each player can look around with mouse, fire using left-click and move using WASD.
+Energy and score are tracked for each player. When a player is dead, that player can respawn pressing [ENTER]. When respawning, score is kept for the session and energy is reset to full.
 
 
 HOW I FEEL ABOUT UNREAL:

@@ -7,6 +7,7 @@
 
 #include "PlayerChar.h"
 #include <Holotest/HolotestGameModeBase.h>
+#include <Holotest/HolotestPlayerState.h>
 
 // Sets default values
 APlayerChar::APlayerChar()
@@ -25,26 +26,50 @@ APlayerChar::APlayerChar()
 	PlayerMesh = GetMesh();
 	PlayerMesh->SetupAttachment(CameraComponent);
 
-	// Get both weapon sockets from player mesh
-	// ### for some reason it was not working, and as I lost
-	// ### a good time (this ended up being a one day project),
-	// ### I just hammered the coordinates from reference cubes
-	// ### inside the BP, sorry.
-	//WeaponOffsetLeft = PlayerMesh->GetSocketLocation("BoneSocket_Left");
-	//WeaponOffsetRight = PlayerMesh->GetSocketLocation("BoneSocket_Right");
+	// Starts alive
+	IsAlive = true;
 }
 
 // Called when the game starts or when spawned
 void APlayerChar::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Delay = 0;
 }
 
 // Called every frame
 void APlayerChar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Dead players don't update
+	if (!IsAlive) return;
+
+	// We only update HUD from time to time (half a second)
+	APlayerController* PController = GetController<APlayerController>();
+	if (PController && PController->IsLocalPlayerController())
+	{
+		AHolotestPlayerState* State = GetPlayerState<AHolotestPlayerState>();
+		if (State)
+		{
+			uint16 Energy = State->GetEnergy();
+
+			if (Energy == 0 || GetActorLocation().Z < -400)
+			{
+				// Dead
+				IsAlive = false;
+				OnShowRespawnMsg(true);
+				ServerKill();
+			}
+
+			Delay += DeltaTime;
+			if (Delay >= 0.5)
+			{
+				OnUpdateHUD(Energy, State->GetScore());
+				Delay = 0;
+			}
+		}
+	}
 }
 
 // Called to bind functionality to input
@@ -64,11 +89,17 @@ void APlayerChar::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	// Bind fire action
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &APlayerChar::Fire);
+
+	// Bind respawn action
+	PlayerInputComponent->BindAction("Respawn", IE_Pressed, this, &APlayerChar::Respawn);
 }
 
 // Character move
 void APlayerChar::Move(float Value)
 {
+	// Dead players can't move
+	if (!IsAlive) return;
+
 	// Move into forward direction
 	FRotator Yaw = FRotator(0.0f, GetControlRotation().Yaw, 0.0f);
 	FVector Direction = FRotationMatrix(Yaw).GetUnitAxis(EAxis::X);
@@ -78,6 +109,9 @@ void APlayerChar::Move(float Value)
 // Character strafe
 void APlayerChar::Strafe(float Value)
 {
+	// Dead players can't move
+	if (!IsAlive) return;
+
 	// Find right and move into that direction
 	FVector Direction = FRotationMatrix(Controller->GetControlRotation()).GetScaledAxis(EAxis::Y);
 	AddMovementInput(Direction, Value);
@@ -86,18 +120,27 @@ void APlayerChar::Strafe(float Value)
 // Character jump start
 void APlayerChar::StartJump()
 {
+	// Dead players can't move
+	if (!IsAlive) return;
+
 	bPressedJump = true;
 }
 
 // Character jump end
 void APlayerChar::StopJump()
 {
+	// Dead players can't move
+	if (!IsAlive) return;
+
 	bPressedJump = false;
 }
 
 // Fire
 void APlayerChar::Fire()
 {
+	// Dead players can't fire
+	if (!IsAlive) return;
+
 	// Must setup Weapon in BP
 	if (WeaponClass)
 	{
@@ -152,4 +195,43 @@ void APlayerChar::FireAtPos(const FVector& Pos, const FRotator& Rot)
 void APlayerChar::ServerFire_Implementation(const FVector& Pos, const FRotator& Rot)
 {
 	FireAtPos(Pos, Rot);
+}
+
+// Server kill player RPC
+void APlayerChar::ServerKill_Implementation()
+{
+	// Choose a random place to spectate
+	FVector Pos = FVector(FMath::RandRange(-250, 250), 0, FMath::RandRange(450.0f, 550.0f));
+	SetActorLocation(Pos);
+	GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::ZeroVector);
+}
+
+// Respawn
+void APlayerChar::Respawn()
+{
+	// Move to some random place above
+	FVector Pos = FVector(FMath::RandRange(-300.0f, 300.0f), FMath::RandRange(-350.0f, 350.0f), FMath::RandRange(250.0f, 350.0f));
+	if (HasAuthority())
+	{
+		SetActorLocation(Pos);
+	}
+	else
+	{
+		ServerRespawn(Pos);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("RESPAWNING %s AT %f %f %f"), *GetName(), Pos.X, Pos.Y, Pos.Z);
+
+	// Reset energy
+	AHolotestPlayerState* State = GetPlayerState<AHolotestPlayerState>();
+	State->Reset();
+
+	// Live again
+	IsAlive = true;
+	OnShowRespawnMsg(false);
+}
+
+// Server Respawn
+void APlayerChar::ServerRespawn_Implementation(const FVector& Pos)
+{
+	SetActorLocation(Pos);
 }

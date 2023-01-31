@@ -11,7 +11,7 @@ AHolotestGameStateBase::AHolotestGameStateBase()
 	HitsCount = 0;
 }
 
-// Inflict player damage
+// Increases total hits count
 void AHolotestGameStateBase::PlayerHit()
 {
 	if (HasAuthority())
