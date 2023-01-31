@@ -209,29 +209,37 @@ void APlayerChar::ServerKill_Implementation()
 // Respawn
 void APlayerChar::Respawn()
 {
+	// No respawn if alive
+	if (IsAlive) return;
+
 	// Move to some random place above
 	FVector Pos = FVector(FMath::RandRange(-300.0f, 300.0f), FMath::RandRange(-350.0f, 350.0f), FMath::RandRange(250.0f, 350.0f));
-	if (HasAuthority())
-	{
-		SetActorLocation(Pos);
-	}
-	else
-	{
-		ServerRespawn(Pos);
-	}
-	UE_LOG(LogTemp, Warning, TEXT("RESPAWNING %s AT %f %f %f"), *GetName(), Pos.X, Pos.Y, Pos.Z);
+	SetActorLocation(Pos);
 
 	// Reset energy
 	AHolotestPlayerState* State = GetPlayerState<AHolotestPlayerState>();
 	State->Reset();
 
+	UE_LOG(LogTemp, Warning, TEXT("CLIENT %s AT %f %f %f"), *GetName(), Pos.X, Pos.Y, Pos.Z);
+
+	if (!HasAuthority())
+	{
+		ServerRespawn(Pos);
+		UE_LOG(LogTemp, Warning, TEXT("SERVER RESPAWNING %s AT %f %f %f"), *GetName(), Pos.X, Pos.Y, Pos.Z);
+	}
+
 	// Live again
 	IsAlive = true;
 	OnShowRespawnMsg(false);
+	UE_LOG(LogTemp, Warning, TEXT("CLIENT %s SHOULD BE ALIVE NOW..."), *GetName());
 }
 
 // Server Respawn
 void APlayerChar::ServerRespawn_Implementation(const FVector& Pos)
 {
 	SetActorLocation(Pos);
+
+	// Reset energy
+	AHolotestPlayerState* State = GetPlayerState<AHolotestPlayerState>();
+	State->Reset();
 }
