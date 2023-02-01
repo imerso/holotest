@@ -106,5 +106,5 @@ public:
 
 	// Show/hide respawn message
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
-	void OnShowRespawnMsg(bool Show);
+	void OnShowRespawnMsg(const FText& Msg);
 };

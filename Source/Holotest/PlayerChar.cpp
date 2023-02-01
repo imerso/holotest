@@ -58,7 +58,7 @@ void APlayerChar::Tick(float DeltaTime)
 			{
 				// Dead
 				IsAlive = false;
-				OnShowRespawnMsg(true);
+				OnShowRespawnMsg(FText::FromString("SPECTATING - PRESS [ENTER] TO RESPAWN"));
 				ServerKill();
 			}
 
@@ -230,7 +230,7 @@ void APlayerChar::Respawn()
 
 	// Live again
 	IsAlive = true;
-	OnShowRespawnMsg(false);
+	OnShowRespawnMsg(FText::FromString(""));
 	UE_LOG(LogTemp, Warning, TEXT("CLIENT %s SHOULD BE ALIVE NOW..."), *GetName());
 }
 
