@@ -73,9 +73,9 @@ void AWeapon::Fire(const FVector& Direction)
 void AWeapon::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// Ignore self-collisions
-	if (OtherActor->GetInstigator() == this->GetInstigator()) return;
+	if (OtherActor == this || OtherActor->GetInstigator() == this->GetInstigator()) return;
 
-	if (OtherActor != this && OtherComponent->IsSimulatingPhysics())
+	if (OtherComponent->IsSimulatingPhysics())
 	{
 		OtherComponent->AddImpulseAtLocation(MoveComponent->Velocity * 100.0f, Hit.ImpactPoint);
 	}

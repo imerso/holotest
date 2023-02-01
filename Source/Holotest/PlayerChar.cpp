@@ -42,9 +42,6 @@ void APlayerChar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Dead players don't update
-	if (!IsAlive) return;
-
 	// We only update HUD from time to time (half a second)
 	APlayerController* PController = GetController<APlayerController>();
 	if (PController && PController->IsLocalPlayerController())
@@ -54,11 +51,12 @@ void APlayerChar::Tick(float DeltaTime)
 		{
 			uint16 Energy = State->GetEnergy();
 
-			if (Energy == 0 || GetActorLocation().Z < -400)
+			if (IsAlive && (Energy == 0 || GetActorLocation().Z < -400))
 			{
 				// Dead
 				IsAlive = false;
 				OnShowRespawnMsg(FText::FromString("SPECTATING - PRESS [ENTER] TO RESPAWN"));
+				GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::ZeroVector);
 				ServerKill();
 			}
 

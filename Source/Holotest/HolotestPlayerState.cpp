@@ -15,24 +15,24 @@ AHolotestPlayerState::AHolotestPlayerState()
 }
 
 // Damage and decrease player energy
-void AHolotestPlayerState::PlayerDamage(uint16 Amount)
+void AHolotestPlayerState::PlayerDamage(int16 Amount)
 {
 	if (HasAuthority())
 	{
 		// Decreases until no energy is available
 		if (Energy)
 		{
-			Energy = FMath::Max(0, Energy - Amount);
+			Energy = FMath::Max<int16>(0, Energy - Amount);
 		}
 	}
 }
 
-// Add score
-void AHolotestPlayerState::PlayerAddScore(uint32 Amount)
+// Add score - can be negative
+void AHolotestPlayerState::PlayerAddScore(int32 Amount)
 {
 	if (HasAuthority())
 	{
-		PScore += Amount;
+		PScore = FMath::Max<int32>(0, PScore + Amount);
 	}
 }
 
