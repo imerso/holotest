@@ -37,8 +37,8 @@ protected:
 
 	// Server "kill" player RPC
 	UFUNCTION(Server, Reliable)
-	void ServerKill();
-	void ServerKill_Implementation();
+	void ServerKill(AHolotestPlayerState* State, int32 LostScore);
+	void ServerKill_Implementation(AHolotestPlayerState* State, int32 LostScore);
 
 	// Server respawn player at location RPC
 	UFUNCTION(Server, Reliable)
@@ -93,6 +93,10 @@ public:
 	// Weapon class
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<class AWeapon> WeaponClass;
+
+	// Fire sound
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	USoundBase* FireAudio;
 
 	// Weapon offsets
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")

@@ -8,6 +8,7 @@
 #include "PlayerChar.h"
 #include <Holotest/HolotestGameModeBase.h>
 #include <Holotest/HolotestPlayerState.h>
+#include <Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 // Sets default values
 APlayerChar::APlayerChar()
@@ -42,6 +43,9 @@ void APlayerChar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	const float DeathZ = -400;
+	float PlayerZ = GetActorLocation().Z;
+
 	// We only update HUD from time to time (half a second)
 	APlayerController* PController = GetController<APlayerController>();
 	if (PController && PController->IsLocalPlayerController())
@@ -51,13 +55,17 @@ void APlayerChar::Tick(float DeltaTime)
 		{
 			uint16 Energy = State->GetEnergy();
 
-			if (IsAlive && (Energy == 0 || GetActorLocation().Z < -400))
+			if (IsAlive && (Energy == 0 || PlayerZ < DeathZ))
 			{
 				// Dead
 				IsAlive = false;
 				OnShowRespawnMsg(FText::FromString("SPECTATING - PRESS [ENTER] TO RESPAWN"));
 				GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::ZeroVector);
-				ServerKill();
+
+				// Determine how much score to lose
+				int32 CurrentScore = State->GetScore();
+				int32 LostScore = (PlayerZ < DeathZ ? CurrentScore / 2 : 0);
+				ServerKill(State, LostScore);
 			}
 
 			Delay += DeltaTime;
@@ -162,6 +170,10 @@ void APlayerChar::Fire()
 			FireAtPos(LocationLeft, CameraRotation);
 			FireAtPos(LocationRight, CameraRotation);
 		}
+
+		// Play fire audio
+		UWorld* World = GetWorld();
+		UGameplayStatics::PlaySoundAtLocation(World, FireAudio, CameraLocation);
 	}
 }
 
@@ -196,12 +208,14 @@ void APlayerChar::ServerFire_Implementation(const FVector& Pos, const FRotator& 
 }
 
 // Server kill player RPC
-void APlayerChar::ServerKill_Implementation()
+void APlayerChar::ServerKill_Implementation(AHolotestPlayerState* State, int32 LostScore)
 {
 	// Choose a random place to spectate
+	GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	FVector Pos = FVector(FMath::RandRange(-250, 250), 0, FMath::RandRange(450.0f, 550.0f));
 	SetActorLocation(Pos);
-	GetCapsuleComponent()->SetPhysicsLinearVelocity(FVector::ZeroVector);
+	State->PlayerAddScore(-LostScore);
+
 }
 
 // Respawn

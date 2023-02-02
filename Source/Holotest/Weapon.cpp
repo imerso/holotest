@@ -7,6 +7,7 @@
 #include <Holotest/PlayerChar.h>
 #include <Holotest/HolotestGameModeBase.h>
 #include <Holotest/HolotestPlayerState.h>
+#include <Runtime/Engine/Classes/Kismet/GameplayStatics.h>
 
 // Sets default values
 AWeapon::AWeapon()
@@ -41,9 +42,6 @@ AWeapon::AWeapon()
 		static ConstructorHelpers::FObjectFinder<UStaticMesh>Mesh(TEXT("StaticMesh'/Game/Meshes/projectile.projectile'"));
 		WeaponMeshComponent->SetStaticMesh(Mesh.Object);
 		WeaponMeshComponent->SetupAttachment(CollisionComponent);
-
-		UObject* SpawnActor = Cast<UObject>(StaticLoadObject(UObject::StaticClass(), NULL, TEXT("Blueprint'/Game/Blueprints/BP_Explosion01.BP_Explosion01'")));
-		ExplosionBP = Cast<UBlueprint>(SpawnActor);
 	}
 
 	InitialLifeSpan = 2.0f;
@@ -53,7 +51,6 @@ AWeapon::AWeapon()
 void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -139,12 +136,16 @@ void AWeapon::ExplosionAtPos(const FVector& Pos)
 		SpawnParams.Instigator = GetInstigator();
 
 		// Spawn new explosion
-		AActor* Explosion = World->SpawnActor<AActor>(ExplosionBP->GeneratedClass, Pos, FRotator(0, 0, 0), SpawnParams);
+		AActor* Explosion = World->SpawnActor<AActor>(ExplosionClass, Pos, FRotator(0, 0, 0), SpawnParams);
 		if (Explosion)
 		{
 			// Explode
 			Explosion->SetReplicates(true);
 			Explosion->SetReplicateMovement(true);
+			Explosion->SetAutoDestroyWhenFinished(true);
+
+			// Play explosion audio
+			UGameplayStatics::PlaySoundAtLocation(World, ExplosionAudio, Pos);
 		}
 	}
 }

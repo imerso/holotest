@@ -12,21 +12,6 @@ HOW IT WAS DONE:
 
 HOW TO PLAY:
 
-At this point the game was tested only inside the Unreal Editor. Run it as listening server, then check that each player can look around with mouse, fire using left-click and move using WASD.
+Run the game and select HOST or JOIN. If you click HOST, other players in the same network will fill your machine IP address and click JOIN to enter your server host.
+Look around with mouse, fire with left-click and move with WASD keys.
 Energy and score are tracked for each player. When a player is dead, that player can respawn pressing [ENTER]. When respawning, score is kept for the session and energy is reset to full.
-
-
-HOW I FEEL ABOUT UNREAL:
-
-I wrote a few engines in the past and have an idea about how engines
-like Unreal are implemented.
-
-I am not a Unreal specialist (yet), though. I just find it natural
-to learn about 3D engines while I go. Threejs, Babylonjs, Unity, Unreal,
-they look straightforward to learn.
-
-I definitely checked the docs multiple times while building this tiny game.
-
-Unreal is a great engine overall. If I get a job opportunity, I'll dive into it
-and study its source-code to get more details about how everything was
-implemented, to master it.

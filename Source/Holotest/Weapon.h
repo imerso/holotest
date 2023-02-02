@@ -8,6 +8,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include <Runtime/Engine/Classes/Sound/SoundCue.h>
 #include "Weapon.generated.h"
 
 UCLASS()
@@ -27,11 +28,9 @@ protected:
 	void ExplosionAtPos(const FVector& Pos);
 
 	// Server Fire RPC
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(NetMulticast, Reliable)
 	void ServerExplosion(const FVector& Pos);
 	void ServerExplosion_Implementation(const FVector& Pos);
-
-	UBlueprint* ExplosionBP;
 
 public:	
 	// Called every frame
@@ -43,6 +42,10 @@ public:
 	// Weapon mesh
 	UPROPERTY(VisibleDefaultsOnly, Category = "Weapon")
 	UStaticMeshComponent* WeaponMeshComponent;
+
+	// Explosion sound
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	USoundBase* ExplosionAudio;
 
 	// Explosion effect
 	// Weapon class
